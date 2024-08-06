@@ -31,3 +31,12 @@ spec:
       port: 8080
       targetPort: 8080
   type: ClusterIP
+---
+  apiVersion: traefik.containo.us/v1alpha1
+  kind: Middleware
+  metadata:
+    name: prod-rate-limit
+  spec:
+    rateLimit:
+      average: 30
+      burst: 50
