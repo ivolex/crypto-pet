@@ -29,6 +29,8 @@ public class PricesHandler {
     @Value("${prises.path:./prices}")
     private String path;
 
+    private Map<String, List<Crypto>> prices;
+
     public List<Crypto> pricesFor(String symbol) {
         File text = Stream.of(Objects.requireNonNull(new File(path).listFiles()))
                 .filter(file -> file.getName().contains(symbol))
@@ -55,9 +57,12 @@ public class PricesHandler {
     }
 
     protected Map<String, List<Crypto>> findAll() {
-        return Stream.of(Objects.requireNonNull(new File(path).listFiles()))
-                .filter(file -> !file.isDirectory())
-                .collect(Collectors.toMap(this::symbolOfFile, file -> pricesFor(symbolOfFile(file))));
+        if (null == this.prices){
+             this.prices = Stream.of(Objects.requireNonNull(new File(path).listFiles()))
+                     .filter(file -> !file.isDirectory())
+                     .collect(Collectors.toMap(this::symbolOfFile, file -> pricesFor(symbolOfFile(file))));;
+        }
+        return this.prices;
     }
 
     public Crypto findOldestFor(String symbol) {

@@ -115,7 +115,7 @@ class ServiceRouterTest {
         webTestClient.get()
                 .uri("/api/highestRange/2023-01-01")
                 .exchange()
-                .expectStatus().isOk()
+                .expectStatus().is4xxClientError()
                 .expectBody(SymbolRange.class)
                 .value(response ->
                         assertEquals(null, response));

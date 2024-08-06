@@ -126,7 +126,7 @@ class PricesHandlerTest {
     }
 
     @Test
-    @DisplayName("Should return highest normalized range for a specific day.")
+    @DisplayName("Should return null for non existing day.")
     void returnsNullForNonPopulatedDate() {
 
         SymbolRange result = handler.highestRangeForDate("2023-01-01");

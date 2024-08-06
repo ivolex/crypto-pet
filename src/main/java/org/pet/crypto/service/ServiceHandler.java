@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.web.reactive.function.server.ServerResponse.ok;
+
 @Service
 @Slf4j
 public class ServiceHandler {
@@ -29,7 +32,9 @@ public class ServiceHandler {
 
         Mono<List<Crypto>> output = Mono.just(pricesHandler.pricesFor(symbol));
 
-        return ServerResponse.ok().body(output, List.class);
+        return output
+                .flatMap(list -> ok().contentType(APPLICATION_JSON).bodyValue(list))
+                .switchIfEmpty(ServerResponse.notFound().build());
     }
 
     public Mono<ServerResponse> oldestOf(ServerRequest request) {
@@ -37,7 +42,9 @@ public class ServiceHandler {
 
         Mono<Crypto> output = Mono.just(pricesHandler.findOldestFor(symbol));
 
-        return ServerResponse.ok().body(output, Crypto.class);
+        return output
+                .flatMap(crypto -> ok().contentType(APPLICATION_JSON).bodyValue(crypto))
+                .switchIfEmpty(ServerResponse.notFound().build());
     }
 
     public Mono<ServerResponse> newestOf(ServerRequest request) {
@@ -45,7 +52,9 @@ public class ServiceHandler {
 
         Mono<Crypto> output = Mono.just(pricesHandler.findNewestFor(symbol));
 
-        return ServerResponse.ok().body(output, Crypto.class);
+        return output
+                .flatMap(crypto -> ok().contentType(APPLICATION_JSON).bodyValue(crypto))
+                .switchIfEmpty(ServerResponse.notFound().build());
     }
 
     public Mono<ServerResponse> lowestPriceFor(ServerRequest request) {
@@ -53,7 +62,9 @@ public class ServiceHandler {
 
         Mono<Crypto> output = Mono.just(pricesHandler.findMinPriceFor(symbol));
 
-        return ServerResponse.ok().body(output, Crypto.class);
+        return output
+                .flatMap(crypto -> ok().contentType(APPLICATION_JSON).bodyValue(crypto))
+                .switchIfEmpty(ServerResponse.notFound().build());
     }
 
     public Mono<ServerResponse> highestPriceFor(ServerRequest request) {
@@ -61,28 +72,27 @@ public class ServiceHandler {
 
         Mono<Crypto> output = Mono.just(pricesHandler.findMaxPriceFor(symbol));
 
-        return ServerResponse.ok().body(output, Crypto.class);
+        return output
+                .flatMap(crypto -> ok().contentType(APPLICATION_JSON).bodyValue(crypto))
+                .switchIfEmpty(ServerResponse.notFound().build());
     }
 
     public Mono<ServerResponse> descendingByRange(ServerRequest request) {
 
-        Mono<Map<String, Double>> output = Mono.just(pricesHandler.descendingByRange());
+        Mono<Map<String, Double>> output = Mono.justOrEmpty(pricesHandler.descendingByRange());
 
-        return ServerResponse.ok().body(output, Map.class);
+        return output
+                .flatMap(map -> ok().contentType(APPLICATION_JSON).bodyValue(map))
+                .switchIfEmpty(ServerResponse.notFound().build());
     }
 
     public Mono<ServerResponse> highestRange(ServerRequest request) {
         String date = request.pathVariable(DATE);
 
-        Mono<SymbolRange> output;
+        Mono<SymbolRange> output = Mono.justOrEmpty(pricesHandler.highestRangeForDate(date));
 
-        SymbolRange range = pricesHandler.highestRangeForDate(date);
-        if (Objects.nonNull(range)){
-            output = Mono.just(pricesHandler.highestRangeForDate(date));
-        }else {
-            output = Mono.empty();
-        }
-
-        return ServerResponse.ok().body(output, Map.Entry.class);
+        return output
+                .flatMap(symbol -> ok().contentType(APPLICATION_JSON).bodyValue(symbol))
+                .switchIfEmpty(ServerResponse.notFound().build());
     }
 }
