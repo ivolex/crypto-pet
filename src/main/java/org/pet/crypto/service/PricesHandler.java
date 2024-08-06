@@ -2,6 +2,7 @@ package org.pet.crypto.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.pet.crypto.model.Crypto;
+import org.pet.crypto.model.SymbolRange;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -83,14 +84,18 @@ public class PricesHandler {
         return sortByValueDescending(calculateRanges(findAll()));
     }
 
-    public Map.Entry<String, Double> highestRangeForDate(String date) {
+    public SymbolRange highestRangeForDate(String date) {
         Map<String, List<Crypto>> cryptosByDate = findAllByDate(date);
         Map<String, Double> calculatedRanges = calculateRanges(cryptosByDate);
 
         Optional<Map.Entry<String, Double>> maxEntry = calculatedRanges.entrySet()
                 .stream().max(Map.Entry.comparingByValue());
 
-        return maxEntry.orElse(null);
+        Map.Entry<String, Double> entry = maxEntry.orElse(null);
+        if (Objects.nonNull(entry)){
+            return new SymbolRange(entry.getKey(), entry.getValue());
+        }
+        return null;
     }
 
     private Map<String, Double> calculateRanges(Map<String, List<Crypto>> input) {

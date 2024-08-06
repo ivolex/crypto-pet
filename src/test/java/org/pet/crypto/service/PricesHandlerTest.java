@@ -3,6 +3,7 @@ package org.pet.crypto.service;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.pet.crypto.model.Crypto;
+import org.pet.crypto.model.SymbolRange;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -118,17 +119,17 @@ class PricesHandlerTest {
     @DisplayName("Should return highest normalized range for a specific day.")
     void canFindCryptoByHighestRangeForDate() {
 
-        Map.Entry<String, Double> result = handler.highestRangeForDate("2022-01-01");
+        SymbolRange result = handler.highestRangeForDate("2022-01-01");
 
-        assertEquals("XRP", result.getKey());
-        assertEquals(0.019281754639672227, result.getValue());
+        assertEquals("XRP", result.symbol());
+        assertEquals(0.019281754639672227, result.range());
     }
 
     @Test
     @DisplayName("Should return highest normalized range for a specific day.")
     void returnsNullForNonPopulatedDate() {
 
-        Map.Entry<String, Double> result = handler.highestRangeForDate("2023-01-01");
+        SymbolRange result = handler.highestRangeForDate("2023-01-01");
 
         assertNull(result);
     }
